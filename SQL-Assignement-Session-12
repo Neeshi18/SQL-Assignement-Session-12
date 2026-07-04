@@ -1,0 +1,114 @@
+Use music_streaming_db;
+CREATE TABLE SpotifyArtists (
+    artist_id INT PRIMARY KEY,
+    name VARCHAR(50),
+    followers INT
+);
+INSERT INTO SpotifyArtists VALUES
+(1,'Arijit Singh',9500000),
+(2,'Taylor Swift',12000000),
+(3,'Ed Sheeran',11000000),
+(4,'Shreya Ghoshal',8000000),
+(5,'Armaan Malik',7000000);
+WITH TopArtists AS
+(
+    SELECT *
+    FROM SpotifyArtists
+    ORDER BY followers DESC
+    LIMIT 3
+)
+SELECT *
+FROM TopArtists;
+CREATE TABLE FlipkartOrders (
+    order_id INT PRIMARY KEY,
+    user_id INT,
+    order_date DATE,
+    total_amount DECIMAL(10,2)
+);
+INSERT INTO FlipkartOrders VALUES
+(101,1,'2023-01-15',5000),
+(102,2,'2023-01-20',7000),
+(103,3,'2023-02-10',8000),
+(104,1,'2023-02-18',6000),
+(105,2,'2023-03-12',9000),
+(106,4,'2023-03-28',10000);
+WITH MonthlyTotals AS
+(
+    SELECT
+        MONTH(order_date) AS MonthNo,
+        SUM(total_amount) AS TotalSales
+    FROM FlipkartOrders
+    WHERE YEAR(order_date)=2023
+    GROUP BY MONTH(order_date)
+)
+SELECT *
+FROM MonthlyTotals
+ORDER BY TotalSales DESC
+LIMIT 1;
+WITH RECURSIVE CalendarDays AS
+(
+    SELECT CURDATE() AS day_date
+
+    UNION ALL
+
+    SELECT DATE_ADD(day_date, INTERVAL 1 DAY)
+    FROM CalendarDays
+    WHERE day_date < DATE_ADD(CURDATE(), INTERVAL 6 DAY)
+)
+SELECT *
+FROM CalendarDays;
+Use food_delivery_db;
+CREATE TABLE ZomatoRestaurants (
+    id INT PRIMARY KEY,
+    name VARCHAR(50),
+    city VARCHAR(50),
+    rating DECIMAL(2,1)
+);
+INSERT INTO ZomatoRestaurants VALUES
+(1,'Dominos','Delhi',4.5),
+(2,'Pizza Hut','Delhi',4.2),
+(3,'KFC','Mumbai',3.9),
+(4,'McDonalds','Mumbai',4.1),
+(5,'Subway','Pune',4.6);
+WITH CityAverage AS
+(
+    SELECT
+        city,
+        AVG(rating) AS AvgRating
+    FROM ZomatoRestaurants
+    GROUP BY city
+)
+
+SELECT
+    z.*
+FROM ZomatoRestaurants z
+JOIN CityAverage c
+ON z.city=c.city
+WHERE c.AvgRating>4.0;
+Use music_streaming_db;
+CREATE TABLE IPLMatches (
+    match_id INT,
+    team VARCHAR(50),
+    runs INT,
+    match_year INT
+);
+INSERT INTO IPLMatches VALUES
+(1,'CSK',250,2023),
+(2,'CSK',300,2023),
+(3,'MI',400,2023),
+(4,'MI',1700,2023),
+(5,'RCB',1800,2023),
+(6,'RCB',500,2023);
+WITH TeamRuns AS
+(
+    SELECT
+        team,
+        SUM(runs) AS TotalRuns
+    FROM IPLMatches
+    WHERE match_year=2023
+    GROUP BY team
+)
+
+SELECT *
+FROM TeamRuns
+WHERE TotalRuns>2000;
